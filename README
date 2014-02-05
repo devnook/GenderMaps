@@ -1,0 +1,6 @@
+This map uses the DynamicMapsEngineLayer, drawing from a styled Layer in Google
+Maps Engine.  It also pulls attribute data from the datasource of the layer
+using the GME API, and it combines these with additional attribute data that
+was exported from a BigQuery analysis summarizing the count of males and females
+aggregated by their birth location and a set of the most popular professions
+listed in Freebase.

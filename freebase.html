@@ -1,0 +1,112 @@
+
+<!DOCTYPE html>
+<html>
+  <head>
+    <style>
+      html, body, #map-canvas {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+      }
+      #legend{
+        background:white;
+        margin:5px;
+        padding:5px;
+        padding-right:35px;
+        opacity:.8;
+      }
+      #legend-title {
+        text-align: left;
+        margin-bottom: 8px;
+        font-weight: bold;
+        font-size: 90%;
+        }
+      .legend-scale ul {
+        opacity:.5;
+        margin: 0;
+        padding: 0;
+        float: left;
+        list-style: none;
+        }
+      .legend-scale ul li {
+        display: block;
+        float: left;
+        width: 30px;
+        text-align: center;
+        font-size: 80%;
+        list-style: none;
+        }
+      ul.legend-labels li span {
+        display: block;
+        float: left;
+        height: 15px;
+        width: 50px;
+        }
+       .left {
+         float:left;
+       }
+       .right {
+         float:right;
+       }
+       select {
+         font-size:1.2em;
+       }
+       #status {
+         padding:5px;
+         margin:5px;
+       }
+       #status{
+         font-size:1.3em;
+         background: white;
+         opacity: .8;
+       }
+       #selection {
+         margin: 5px;
+         font-size: 1.2em;
+         background: white;
+         opacity: .8;
+         overflow: scroll;
+         height: 100%;
+       }
+       #professions {
+         list-style: none;
+         margin-left: -20px;
+       }
+       .selected {
+         font-weight: bold;
+       }
+       #f, #m {
+         font-size: 1.4em;
+       }
+       #f {
+         color: red;
+       }
+       #m {
+         color: blue;
+       }
+    </style>
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+    <script src="//maps.googleapis.com/maps/api/js?sensor=false&libraries=visualization"></script>
+    <script src="colorutils.js"></script>
+    <script src="freebase.js"></script>
+  </head>
+  <body>
+    <div id="container">
+      <div id="selection">
+         <ul id="professions">
+        </ul>
+      </div>
+      <div id="status"></div>
+    </div>
+    <div id="map-canvas"></div>
+    <div id='legend'>
+    <div id='legend-title'>Gender distrubution in Freebase</div>
+      <div class='legend-scale'>
+        <ul class='legend-labels'>
+        </ul>
+      </div>
+      <span class="left">Females</span>
+      <span class="right">Males</span>
+    </div>
+  </body>
+</html>
