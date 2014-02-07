@@ -93,14 +93,21 @@
   <body>
     <div id="container">
       <div id="selection">
-         <ul id="professions">
-        </ul>
+         <ul id="professions"></ul>
       </div>
       <div id="status"></div>
     </div>
+
     <div id="map-canvas"></div>
+    <div id="layer-toggle">
+       <select id="layer-toggle-select" onchange="pmap.toggleLayerDisplay(this.value)">
+        <option value=countries>Countries</option>
+        <option value=locations>Locations</option>
+      </select>
+    </div>
+
     <div id='legend'>
-    <div id='legend-title'>Gender distrubution in Freebase</div>
+      <div id='legend-title'>Gender distrubution in Freebase</div>
       <div class='legend-scale'>
         <ul class='legend-labels'>
         </ul>

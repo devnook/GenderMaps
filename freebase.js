@@ -1,13 +1,21 @@
 /**
  * @fileoverview Combines aggregate data on genders/professions by location
  * with geometries (via DynamicMapsEngineLayer) and attributes (via GME API).
+ * TODO(jlivni): Display hover effect for individual location circles
+ * add toggle for switching to circles and countries
+ * color circles by profession/gender
  */
+
+
+// Don't display profession with less than this many results [people].
+var MIN_MATCHES = 1500; // ~30 professions with >1500 results
 
 var pmap = {
   map: null,
   stats: null,
   currentOverlays: [],
   currentProfession: 'Actor', // default
+  currentDisplay: 'countries',
   //countryLayer: '04099529906692753140-17822344884942484754',
   countryLayer: '04099529906692753140-06885318028201431845',
   //countryTable: '04099529906692753140-15743085520785048593',
@@ -60,11 +68,11 @@ pmap.initialize = function() {
   pmap.map = new google.maps.Map(document.getElementById('map-canvas'),
       mapOptions);
 
-  google.maps.event.addListener(pmap.map, 'zoom_changed', pmap.zoomChanged);
   var controls = pmap.map.controls;
   controls[google.maps.ControlPosition.TOP_RIGHT].push($('#legend')[0]);
   controls[google.maps.ControlPosition.RIGHT_TOP].push($('#status')[0]);
   controls[google.maps.ControlPosition.TOP_LEFT].push($('#selection')[0]);
+  controls[google.maps.ControlPosition.TOP_CENTER].push($('#layer-toggle')[0]);
 
   // get local professions aggregation by country
 
@@ -76,41 +84,49 @@ pmap.initialize = function() {
   };
   $.getJSON(pmap.getTableUrl(pmap.featureTable), params, pmap.getFeatureData);
 
-  params.select = 'adm0_a3,name,gx_id';
-  $.getJSON(pmap.getTableUrl(pmap.countryTable), params, pmap.loadCountryData);
   pmap.displayLayers();
   pmap.addLegend();
 };
 
-pmap.zoomChanged = function() {
-  var zoom = pmap.map.getZoom();
-  if (zoom < 6) {
-    pmap.clearOverlays();
+pmap.toggleLayerDisplay = function(layer) {
+  pmap.currentDisplay = layer;
+  if (layer == 'countries') {
+    pmap.recolorCountries(pmap.currentProfession);
   } else {
-    $.each(pmap.currentOverlays, function(i, overlay) {
-      overlay.setMap(pmap.map);
-    });
+    pmap.displayLocations(pmap.currentProfession)
   }
-};
-
+}
 pmap.loadProfessions = function(response) {
   allProfessions = {};
   // we know country data already loaded
   $.each(response, function(i, location) {
-    var code = location[2];
+    var freebase_code = location[1];
+    var location_obj = pmap.stats.locations[freebase_code];
+    var country_code = location[2];
+    var feature_id = pmap.stats.lookups.countries[country_code];
+    var country_obj = pmap.stats.countries[feature_id];
     var professions = location[8];
-    var feature_id = pmap.stats.lookups.countries[code];
-    var obj = pmap.stats.countries[feature_id];
     $.each(professions, function(profession, counts) {
       // might be undefined, so set as 0
       counts['m'] = counts['m'] || 0;
       counts['f'] = counts['f'] || 0;
       // check to see if country has the professions already, if not add
-      if (profession in obj.professions) {
-        obj.professions[profession]['m'] += counts['m'];
-        obj.professions[profession]['f'] += counts['f'];
+      if (profession in country_obj.professions) {
+        country_obj.professions[profession]['m'] += counts['m'];
+        country_obj.professions[profession]['f'] += counts['f'];
       } else {
-        obj.professions[profession] = {
+        country_obj.professions[profession] = {
+          'm': counts['m'],
+          'f': counts['f']
+        };
+      }
+      // check to see if location has the professions already, if not add
+      if (!location_obj) {console.log(freebase_code)}
+      if (profession in location_obj.professions) {
+        location_obj.professions[profession]['m'] += counts['m'];
+        location_obj.professions[profession]['f'] += counts['f'];
+      } else {
+        location_obj.professions[profession] = {
           'm': counts['m'],
           'f': counts['f']
         };
@@ -137,7 +153,7 @@ pmap.loadProfessions = function(response) {
     var percentage = profession.m / (profession.m + profession.f);
     var color = getColorForPercentage(percentage);
     // create dropdown
-    if ((profession.m + profession.f) < 1000) { return;}
+    if ((profession.m + profession.f) < MIN_MATCHES) { return;}
     $('#professions')
       .append(
         $('<li></li>')
@@ -150,15 +166,19 @@ pmap.loadProfessions = function(response) {
           $('.selected').removeClass('selected');
           pmap.currentProfession = $(this).text();
           $(this).addClass('selected');
-          pmap.recolorCountries(pmap.currentProfession);
+          //pmap.recolorCountries(pmap.currentProfession);
+          //pmap.displayLocations(pmap.currentProfession)
+          pmap.toggleLayerDisplay(pmap.currentDisplay)
         })
       );
   });
-  $('#sidebar_Model').click();
+  //$('#sidebar_Model').click();
+  //pmap.displayLocations()
+  pmap.toggleLayerDisplay(pmap.currentDisplay)
 };
 
-pmap.recolorCountries = function() {
-  var profession = pmap.currentProfession;
+pmap.recolorCountries = function(profession) {
+  pmap.clearOverlays();
   $.each(pmap.stats.countries, function(id, country) {
     var styles = countryLayer.getFeatureStyle(id);
     if (profession in country.professions) {
@@ -173,17 +193,15 @@ pmap.recolorCountries = function() {
       styles['strokeColor'] = color;
       styles['strokeOpacity'] = .1;
     } else {
-
       styles['fillOpacity'] = 0;
       styles['strokeOpacity'] = .1;
       styles['strokeColor'] = '#111111';
     }
   });
-
  };
 
 pmap.loadCountryData = function(response) {
-  // this is the GME country feature data
+  // set up stats for GME country feature data
   $.each(response.features, function(i, feature) {
     var props = feature.properties;
     pmap.stats.countries[props.gx_id] = {
@@ -203,26 +221,12 @@ pmap.displayLayers = function() {
     map: pmap.map,
     suppressInfoWindows: true
   });
-  countryLayer.addListener('mouseover', pmap.countryMouseover);
-  //countryLayer.addListener('click', countryClick);
-};
-
-
-pmap.countryMouseover = function(obj) {
-   var props = pmap.stats.countries[obj.featureId];
-   pmap.displayHoverData('Country', props);
-
-   var styles = countryLayer.getFeatureStyle(obj.featureId);
-   var females = parseInt(props.female);
-   var males = parseInt(props.male);
-   if (! (males + females)) { return; }
-
-   var percentage = males / (males + females);
-   styles['fillColor'] = getColorForPercentage(percentage || '#cccccc');
-   styles['fillOpacity'] = 1;
-   styles['strokeColor'] = getColorForPercentage(percentage);
-   styles['strokeOpacity'] = 1;
-
+  countryLayer.addListener('mouseover', function(obj) {
+    if (pmap.currentDisplay == 'countries') {
+      var props = pmap.stats.countries[obj.featureId];
+      pmap.displayHoverData('Country', props);
+    }
+  });
 };
 
 pmap.displayHoverData = function(layer, props) {
@@ -243,7 +247,13 @@ pmap.getFeatureData = function(results) {
       pageToken: results.nextPageToken
     }, pmap.getFeatureData);
   } else {
-    pmap.displayData();
+  var params = {
+    key: pmap.apiKey,
+    version: 'published',
+    maxResults: 1000,
+    select: 'adm0_a3,name,gx_id'
+  };
+  $.getJSON(pmap.getTableUrl(pmap.countryTable), params, pmap.loadCountryData);
   }
 };
 
@@ -252,11 +262,11 @@ pmap.getFeatureData = function(results) {
  * @param {Number} scale (radius) of the circle.
  * @return {google.maps.SymbolPath.CIRCLE} circle.
  */
-pmap.getCircle = function(scale) {
+pmap.getCircle = function(scale, color, opacity) {
   var circle = {
     path: google.maps.SymbolPath.CIRCLE,
-    fillColor: 'red',
-    fillOpacity: .2,
+    fillColor: color,
+    fillOpacity: opacity,
     scale: scale,
     strokeColor: 'white',
     strokeWeight: .3
@@ -287,7 +297,7 @@ pmap.setupStats = function(results) {
  */
 pmap.addStats = function(feature) {
   var props = feature.properties;
-  // Each birth location gets a count of male/female.
+  // Each birth location gets a count of male/female as well as professions.
   if (!pmap.stats.locations[props.birthloc]) {
     var coords = feature.geometry.coordinates;
     pmap.stats.locations[props.birthloc] = {
@@ -295,7 +305,8 @@ pmap.addStats = function(feature) {
       name: props.name,
       latLng: new google.maps.LatLng(coords[1], coords[0]),
       male: {'count': 0},
-      female: {'count': 0}
+      female: {'count': 0},
+      professions: {}
     };
   }
   var loc = pmap.stats.locations[props.birthloc];
@@ -315,30 +326,44 @@ pmap.clearOverlays = function() {
   $.each(pmap.currentOverlays, function(i, overlay) {
     overlay.setMap(null);
   });
+  pmap.currentOverlays = [];
 };
 
 /**
  * Display circle icons for [city] locations
- * @param {string} selection - the current selected profession.
+ * @param {string} profession - the current selected profession.
  */
-pmap.displayData = function(selection) {
+pmap.displayLocations = function(profession) {
+  // TODO(jlivni): no need to clear all overlays and then repush
   pmap.clearOverlays();
-  pmap.currentOverlays = [];
+  pmap.recolorCountries('');
 
   $.each(pmap.stats.locations, function(i, location) {
     // circles are sized based on total population, or count of selected
     // profession.
-    if (!selection || selection == 'all') {
-      var size = Math.sqrt(location.count);
+    if (!profession) {
+      var counts = {f: location.female.count, m: location.male.count};
+    } else if (profession in location.professions) {
+      var counts = location.professions[profession];
     } else {
-      var size = Math.sqrt(location[selection].count);
+      counts = {f: 0, m: 0}
     }
+    var percentage = counts.m / (counts.m + counts.f);
+    var color = getColorForPercentage(Math.max(percentage, .1));
+    var opacity = .8
+    var size = Math.sqrt(counts.m + counts.f);
     var overlay = new google.maps.Marker({
-      icon: pmap.getCircle(size),
-      position: location.latLng
+      icon: pmap.getCircle(size, color, opacity),
+      position: location.latLng,
+      map: pmap.map
     });
     overlay.name = i,
     overlay.properties = location;
+    // add hover event for circle
+     google.maps.event.addListener(overlay, 'mouseover', function() {
+      var props = pmap.stats.locations[overlay.name];
+      pmap.displayHoverData('Country', props);
+    });
     pmap.currentOverlays.push(overlay);
   });
 };
@@ -356,6 +381,5 @@ pmap.addLegend = function() {
     li.appendTo($('.legend-labels'));
   });
 };
-
 
 google.maps.event.addDomListener(window, 'load', pmap.initialize);
