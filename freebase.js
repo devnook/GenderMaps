@@ -352,6 +352,7 @@ pmap.displayLocations = function(profession) {
     var color = getColorForPercentage(Math.max(percentage, .1));
     var opacity = .8
     var size = Math.sqrt(counts.m + counts.f);
+    if (size) { size += 3; }
     var overlay = new google.maps.Marker({
       icon: pmap.getCircle(size, color, opacity),
       position: location.latLng,
