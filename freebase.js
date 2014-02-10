@@ -8,7 +8,7 @@
 
 
 // Don't display profession with less than this many results [people].
-var MIN_MATCHES = 1500; // ~30 professions with >1500 results
+var MIN_MATCHES = 1300; // ~30 professions with >1500 results
 
 var pmap = {
   map: null,
