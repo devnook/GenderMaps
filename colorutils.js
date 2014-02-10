@@ -1,7 +1,7 @@
 // http://stackoverflow.com/questions/7128675/from-green-to-red-color-depend-on-percentage
 var percentColors = [
-    { pct: 0.0, color: { r: 0xff, g: 0xff, b: 0 } },
-    { pct: 0.2, color: { r: 0xff, g: 0x00, b: 0 } },
+    { pct: 0.0, color: { r: 0xff, g: 0x30, b: 0 } },
+    { pct: 0.2, color: { r: 0xff, g: 0x00, b: 0x10 } },
   //  { pct: 0.5, color: { r: 0xff, g: 0x0, b: 0xff } },
     { pct: 1.0, color: { r: 0x00, g: 0x00, b: 0xff } } ];
 
