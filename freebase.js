@@ -56,7 +56,7 @@ genderMap.initialize = function() {
 
 
   // Load a GeoJSON from the same server as our demo.
-  map.data.loadGeoJson('/gender.geo.json');
+  map.data.loadGeoJson('gender.geo.json');
 
   map.data.addListener('mouseover', function(e) {
     $('#status').html('');
