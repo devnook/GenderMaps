@@ -88,6 +88,7 @@ license that can be found in the LICENSE file.
           this.map = new google.maps.Map(this.$.map, {
             zoom: this.zoom,
             center: new google.maps.LatLng(this.latitude, this.longitude),
+            //mapTypeId: google.maps.MapTypeId.TERRAIN,
             zoomControl: true,
             zoomControlOptions: {
                 position: google.maps.ControlPosition.RIGHT_CENTER
@@ -95,6 +96,36 @@ license that can be found in the LICENSE file.
             panControl: false
 
           });
+          var styles = [
+              {
+                'featureType': "road",
+                'stylers': [
+                  { 'visibility': 'off' }
+                ]
+              },{
+                'featureType': "administrative.locality",
+                'stylers': [
+
+                  { 'visibility': 'off' }
+                ]
+              },{
+                'featureType': "administrative.country",
+                'stylers': [
+
+                  { 'visibility': 'on' }
+                ]
+              },{
+                'featureType': "administrative.country",
+                'elementType': 'labels',
+                'stylers': [
+
+                  { 'visibility': 'off' }
+                ]
+              }
+
+            ]
+          console.log(styles)
+          this.map.setOptions({'styles': styles});
           this.showCenterMarkerChanged();
           this.fire('google-map-ready');
         },
