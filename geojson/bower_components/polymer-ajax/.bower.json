@@ -1,0 +1,19 @@
+{
+  "name": "polymer-ajax",
+  "private": true,
+  "dependencies": {
+    "polymer": "Polymer/polymer#0.2.2"
+  },
+  "version": "0.2.2",
+  "homepage": "https://github.com/PolymerLabs/polymer-ajax",
+  "_release": "0.2.2",
+  "_resolution": {
+    "type": "version",
+    "tag": "0.2.2",
+    "commit": "77afd6ea311e3186d78ccb5878c257ffd513cd01"
+  },
+  "_source": "git://github.com/PolymerLabs/polymer-ajax.git",
+  "_target": "~0.2.2",
+  "_originalSource": "PolymerLabs/polymer-ajax",
+  "_direct": true
+}

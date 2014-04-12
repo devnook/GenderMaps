@@ -1,0 +1,19 @@
+{
+  "name": "google-map",
+  "private": true,
+  "dependencies": {
+    "polymer": "Polymer/polymer#0.2.2"
+  },
+  "version": "0.2.2",
+  "homepage": "https://github.com/PolymerLabs/google-map",
+  "_release": "0.2.2",
+  "_resolution": {
+    "type": "version",
+    "tag": "0.2.2",
+    "commit": "7869cbcd6495bec84a6fa1b4175d93e1d78f75dc"
+  },
+  "_source": "git://github.com/PolymerLabs/google-map.git",
+  "_target": "~0.2.2",
+  "_originalSource": "PolymerLabs/google-map",
+  "_direct": true
+}

@@ -1,0 +1,99 @@
+<!--
+Copyright 2013 The Polymer Authors. All rights reserved.
+Use of this source code is governed by a BSD-style
+license that can be found in the LICENSE file.
+-->
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../polymer-ajax/polymer-ajax.html">
+
+<polymer-element name="google-map-maplabel" attributes="map value countries countries_iso">
+
+
+
+  <template>
+    <style>
+      :host {
+        display: none;
+      }
+    </style>
+  </template>
+  <script>
+  function loadMapApi(callback) {
+              var s = document.createElement('script');
+              s.src = 'maplabel-compiled.js';
+              s.onload = callback;
+              document.head.appendChild(s);
+
+          }
+
+
+          window.addEventListener('google-map-ready', function(e) {
+            console.log('ready');
+            loadMapApi()
+          });
+
+
+    Polymer('google-map-maplabel', {
+      // google.maps.Map instance
+      map: null,
+      filename: null,
+      countries: null,
+      countries_iso: null,
+      value: '',
+
+      mapChanged: function() {
+        if (this.map && this.map instanceof google.maps.Map) {
+          this.mapReady();
+        }
+      },
+      mapReady: function() {
+
+        console.log(this.geojson)
+        /*
+
+        var geocoder = new google.maps.Geocoder();
+        geocoder.geocode( { 'address': 'USA'}, (function(results, status) {
+          if (status == google.maps.GeocoderStatus.OK) {
+            //map.setCenter(results[0].geometry.location);
+            var marker = new google.maps.Marker({
+                map: this.map,
+                position: results[0].geometry.location
+            });
+          } else {
+            alert('Geocode was not successful for the following reason: ' + status);
+          }
+        }).bind(this));
+        */
+
+      },
+      countriesChanged: function() {
+                //console.log(this.resp)
+        console.log(this.countries_iso)
+        console.log(this.countries)
+
+        if (this.map) {
+
+          for (country in this.countries) {
+
+            var latLang = this.countries_iso[country];
+            if (latLang) {
+              var mapLabel = new MapLabel({
+              text: this.countries[country].replace('_', ' '),
+              position: new google.maps.LatLng(latLang[0], latLang[1]),
+              map: this.map,
+              fontSize: 10,
+              align: 'right'
+            });
+
+            }
+
+
+          }
+
+        }
+
+    }
+  }
+    );
+  </script>
+</polymer-element>
