@@ -10,16 +10,22 @@ license that can be found in the LICENSE file.
     <script src="bower_components/platform/platform.js"></script>
     <link rel="import" href="bower_components/google-map/google-map.html">
     <link rel="import" href="bower_components/google-map/google-map-directions.html">
-    <link rel="import" href="bower_components/google-map/google-map-geojson.html">
+    <link rel="import" href="bower_components/google-map/google-map-maplabel.html">
 
     <style type="text/css">
       body {
         margin: 0;
       }
+      html {
+        height: 100%;
+      }
+      body {
+        height: 100%;
+      }
     </style>
   </head>
   <body>
-    <polymer-element name="x-csv-to-geojson" attributes="csv map countryGeojson countryCol valueCol outputJson">
+    <polymer-element name="x-csv-to-geojson" attributes="csv map countries countryGeojson countryCol valueCol outputJson">
       <template>
         <style type="text/css">
           .sidebar-data {
@@ -29,12 +35,13 @@ license that can be found in the LICENSE file.
             opacity: 0.5;
             background-color: #fff;
             z-index: 100;
+            padding: 10px;
           }
 
           .sidebar-data textarea {
-            width: 90%;
-            margin: 10px;
-            height: 500px;
+            width: 100%;
+
+            height: 95%;
           }
 
         </style>
@@ -58,28 +65,11 @@ license that can be found in the LICENSE file.
             countryGeojson: null,
             countryCol: null,
             valueCol: null,
+            countries: null,
 
 
-            mapChanged: function() {
-              console.log('map')
-              console.log(this.map)
 
-              var mapLabel = new MapLabel({
-                text: 'Test',
-                position: new google.maps.LatLng(34.03, -118.235),
-                map: this.map,
-                fontSize: 35,
-                align: 'right'
-              });
-              mapLabel.set('position', new google.maps.LatLng(34.03, -118.235));
-
-            } ,
             csvChanged: function() {
-
-
-
-              console.log(mapLabel)
-
               var lines = this.csv.split('\n');
 
               var countries = {};
@@ -90,13 +80,8 @@ license that can be found in the LICENSE file.
               }
 
 
-              for (var i = 0, country; country = this.countryGeojson.features[i]; i++) {
-                if (countries[country.id]) {
-                  country.properties.value = countries[country.id];
-                }
-              }
 
-              this.outputJson = this.countryGeojson;
+              this.countries = countries;
 
             }
           });
@@ -106,12 +91,14 @@ license that can be found in the LICENSE file.
     <polymer-element name="x-map-example" noscript>
       <template>
         <polymer-ajax auto url="countries.geo.json" response="{{geojson}}"></polymer-ajax>
+        <polymer-ajax auto url="countries_iso.json" response="{{countries_iso}}"></polymer-ajax>
 
-        <x-csv-to-geojson  countryCol="3" valueCol="0" map="{{map}}" countryGeojson="{{geojson}}" outputJson={{outputJson}}></x-csv-to-geojson>
+
+        <x-csv-to-geojson  countryCol="2" valueCol="0" map="{{map}}" countries="{{countries}}" countryGeojson="{{geojson}}" outputJson={{outputJson}}></x-csv-to-geojson>
         <style>
           google-map {
             display: block;
-            height: 600px;
+            height: 100%;
           }
 
           .hover-value {
@@ -130,8 +117,9 @@ license that can be found in the LICENSE file.
 
         <div class="hover-value"><p>{{value}}</p></div>
 
-        <google-map map="{{map}}" zoom="2"></google-map>
-        <google-map-geojson map="{{map}}" filename="{{filename}}" geojson="{{outputJson}}" value="{{value}}"></google-map-geojson>
+        <google-map map="{{map}}" zoom="2" longitude="-50"></google-map>
+        <!-- <google-map-geojson map="{{map}}" filename="{{filename}}" geojson="{{outputJson}}" value="{{value}}"></google-map-geojson> -->
+        <google-map-maplabel map="{{map}}" countries="{{countries}}" countries_iso="{{countries_iso}}" value="{{value}}"></google-map-maplable>
 
       </template>
     </polymer-element>

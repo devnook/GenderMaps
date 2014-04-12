@@ -27,11 +27,14 @@ license that can be found in the LICENSE file.
       }
 
       #map {
-        position: absolute;
-        top: 0;
-        right: 0;
-        bottom: 0;
-        left: 0;
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        position: relative;
+        overflow: hidden;
+        -webkit-transform: translateZ(0px);
+        background-color: #E5E3DF;
+      }
       }
     </style>
 
@@ -84,7 +87,13 @@ license that can be found in the LICENSE file.
         mapReady: function() {
           this.map = new google.maps.Map(this.$.map, {
             zoom: this.zoom,
-            center: new google.maps.LatLng(this.latitude, this.longitude)
+            center: new google.maps.LatLng(this.latitude, this.longitude),
+            zoomControl: true,
+            zoomControlOptions: {
+                position: google.maps.ControlPosition.RIGHT_CENTER
+            },
+            panControl: false
+
           });
           this.showCenterMarkerChanged();
           this.fire('google-map-ready');
