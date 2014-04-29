@@ -38,6 +38,7 @@ license that can be found in the LICENSE file.
       map: null,
       filename: null,
       countries: null,
+      labels: [],
       countries_iso: null,
       value: '',
 
@@ -73,6 +74,10 @@ license that can be found in the LICENSE file.
 
         if (this.map) {
 
+          // clear labels
+          for (label in this.labels) {
+            this.labels[label].setMap(null);
+          }
           for (country in this.countries) {
 
             var latLang = this.countries_iso[country];
@@ -83,17 +88,14 @@ license that can be found in the LICENSE file.
               map: this.map,
               fontSize: 15,
               align: 'center',
-              //fontColor: '#FF3D00',
+              fontColor: '#680000'
               //strokeWeight: 0
             });
+            this.labels.push(mapLabel);
 
             }
-
-
           }
-
         }
-
     }
   }
     );
