@@ -1,0 +1,48 @@
+<!--
+Copyright 2013 The Polymer Authors. All rights reserved.
+Use of this source code is governed by a BSD-style
+license that can be found in the LICENSE file.
+-->
+<link rel="import" href="../bower_components/polymer/polymer.html">
+<polymer-element name="google-map-maplabel" attributes="map value labelPerCountry countries_iso">
+  <script>
+    (function() {
+      function loadMapLabelLib(callback) {
+          var s = document.createElement('script');
+          s.src = 'maplabel-compiled.js';
+          s.onload = callback;
+          document.head.appendChild(s);
+      }
+      window.addEventListener('google-map-ready', function(e) {
+        loadMapLabelLib()
+      });
+      Polymer('google-map-maplabel', {
+        map: null,
+        labelPerCountry: null,
+        labels: [],
+        countries_iso: null,
+        labelPerCountryChanged: function() {
+          if (this.map) {
+            for (label in this.labels) {
+              this.labels[label].setMap(null);
+            }
+            for (country in this.labelPerCountry) {
+              var latLang = this.countries_iso[country];
+              if (latLang) {
+                var mapLabel = new MapLabel({
+                  text: this.labelPerCountry[country].replace('_', ' '),
+                  position: new google.maps.LatLng(latLang[0], latLang[1]),
+                  map: this.map,
+                  fontSize: 15,
+                  align: 'center',
+                  fontColor: '#680000'
+                });
+                this.labels.push(mapLabel);
+              }
+            }
+          }
+        }
+      });
+    })();
+  </script>
+</polymer-element>

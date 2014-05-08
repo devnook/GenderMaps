@@ -1,88 +1,36 @@
 <!DOCTYPE html>
-<!--
-Copyright 2013 The Polymer Authors. All rights reserved.
-Use of this source code is governed by a BSD-style
-license that can be found in the LICENSE file.
--->
 <html>
   <head>
-    <title>Google Map</title>
+    <title>Google Map Labels</title>
     <script src="bower_components/platform/platform.js"></script>
+    <link rel="import" href="bower_components/polymer-ajax/polymer-ajax.html">
     <link rel="import" href="bower_components/google-map/google-map.html">
-    <link rel="import" href="bower_components/google-map/google-map-directions.html">
-    <link rel="import" href="bower_components/google-map/google-map-maplabel.html">
-
+    <link rel="import" href="google-map-maplabel.html">
     <style type="text/css">
       body {
         margin: 0;
-      }
-      html {
         height: 100%;
       }
-      body {
+      html {
         height: 100%;
       }
     </style>
   </head>
   <body>
-    <polymer-element name="x-csv-to-geojson" attributes="csv map countries countryGeojson countryCol valueCol outputJson">
-      <template>
-        <style type="text/css">
-          .sidebar-data {
-            height: 100%;
-            position: absolute;
-            width: 300px;
-            opacity: 0.5;
-            background-color: #fff;
-            z-index: 100;
-            padding: 10px;
-          }
-
-          .sidebar-data textarea {
-            width: 100%;
-
-            height: 95%;
-          }
-
-        </style>
-        <div class="sidebar-data">
-          <textarea value="{{csv}}">{{csv}}</textarea>
-        </div>
-
-
-
-
-
-
-      </template>
+    <polymer-element name="csv-to-json" attributes="csv keyCol valueCol output">
        <script>
-
-
-          Polymer('x-csv-to-geojson', {
-            // google.maps.Map instance
+          Polymer('csv-to-json', {
             csv: null,
-            map: null,
-            countryGeojson: null,
-            countryCol: null,
+            keyCol: null,
             valueCol: null,
-            countries: null,
-
-
-
+            output: null,
             csvChanged: function() {
               var lines = this.csv.split('\n');
-
-              var countries = {};
-
+              this.output = {};
               for (var i = 0, line; line = lines[i]; i++) {
                 var lineParts = line.split(',');
-                countries[lineParts[this.countryCol]] = lineParts[this.valueCol];
+                this.output[lineParts[this.keyCol]] = lineParts[this.valueCol];
               }
-
-
-
-              this.countries = countries;
-
             }
           });
         </script>
@@ -90,36 +38,28 @@ license that can be found in the LICENSE file.
 
     <polymer-element name="x-map-example" noscript>
       <template>
-        <polymer-ajax auto url="countries.geo.json" response="{{geojson}}"></polymer-ajax>
+
+        <!-- Save user's input as labelCsvUrl -->
+        <select value="{{labelCsvUrl}}">
+          <option value="Some other url that does not work">Some other url that does not work</option>
+          <option value="http://1.bqpipeline.appspot.com/">http://1.bqpipeline.appspot.com/</option>
+        </select>
+
+        <!-- Fetch countries latitude and longitude, save as countries_iso -->
         <polymer-ajax auto url="countries_iso.json" response="{{countries_iso}}"></polymer-ajax>
+        <!-- Fetch Labels from labelsCsvUrl and save as csv -->
+        <polymer-ajax auto url="{{labelCsvUrl}}" response="{{csv}}"></polymer-ajax>
+        <!-- Parse csv to a json object and save as countryLabels -->
+        <csv-to-json keyCol="2" valueCol="0" csv="{{csv}}" output="{{output}}"></csv-to-json>
 
-
-        <x-csv-to-geojson  countryCol="2" valueCol="0" map="{{map}}" countries="{{countries}}" countryGeojson="{{geojson}}" outputJson={{outputJson}}></x-csv-to-geojson>
-        <style>
-          google-map {
-            display: block;
-            height: 100%;
-          }
-
-          .hover-value {
-            position: absolute;
-            right: 200px;
-            z-index: 100;
-            background-color: #fff;
-            padding: 10px;
-            opacity: .8;
-            font-size: 1.2em;
-            font-family: Arial, sans-serif;
-            border-radius: 0 0 10px 10px;
-
-          }
-        </style>
-
-        <div class="hover-value"><p>{{value}}</p></div>
-
+        <!-- Draw a map -->
         <google-map map="{{map}}" zoom="2" longitude="-50"></google-map>
-        <!-- <google-map-geojson map="{{map}}" filename="{{filename}}" geojson="{{outputJson}}" value="{{value}}"></google-map-geojson> -->
-        <google-map-maplabel map="{{map}}" countries="{{countries}}" countries_iso="{{countries_iso}}" value="{{value}}"></google-map-maplable>
+        <!-- Add labels to a map -->
+        <google-map-maplabel
+            map="{{map}}"
+            labelPerCountry="{{output}}"
+            countries_iso="{{countries_iso}}"
+            value="{{value}}"></google-map-maplabel>
 
       </template>
     </polymer-element>
