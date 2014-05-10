@@ -25,7 +25,7 @@
             valueCol: null,
             output: null,
             csvChanged: function() {
-              var lines = this.csv.split('\n');
+              var lines = this.csv.split('\r\n');
               this.output = {};
               for (var i = 0, line; line = lines[i]; i++) {
                 var lineParts = line.split(',');
