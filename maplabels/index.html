@@ -18,6 +18,31 @@
   </head>
   <body>
     <polymer-element name="csv-to-json" attributes="csv keyCol valueCol output">
+      <template>
+        <style type="text/css">
+          .sidebar-data {
+            height: 100%;
+            position: absolute;
+            width: 300px;
+            opacity: 0.5;
+            background-color: #fff;
+            z-index: 100;
+            padding: 10px;
+          }
+
+          .sidebar-data textarea {
+            width: 100%;
+            margin-top: 30px;
+
+            height: 95%;
+          }
+
+        </style>
+        <div class="sidebar-data">
+          <textarea value="{{csv}}">{{csv}}</textarea>
+        </div>
+
+      </template>
        <script>
           Polymer('csv-to-json', {
             csv: null,
@@ -25,7 +50,7 @@
             valueCol: null,
             output: null,
             csvChanged: function() {
-              var lines = this.csv.split('\r\n');
+              var lines = this.csv.split('\n');
               this.output = {};
               for (var i = 0, line; line = lines[i]; i++) {
                 var lineParts = line.split(',');
@@ -38,6 +63,15 @@
 
     <polymer-element name="x-map-example" noscript>
       <template>
+        <style>
+          select {
+            position: absolute;
+            z-index: 1000;
+            width: 306px;
+            margin: 1em;
+          }
+
+        </style>
 
         <!-- Save user's input as labelCsvUrl -->
         <select value="{{labelCsvUrl}}">
